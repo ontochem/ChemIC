@@ -1,0 +1,147 @@
+Metadata-Version: 2.1
+Name: ChemIC
+Version: 1.2
+Summary: Chemical images classification project. Defines the script to train the model and web service for classification
+Author-email: "Dr.Aleksei Krasnov" <a.krasnov@digital-science.com>
+License: MIT License
+        
+        Copyright (c) 2023 Aleksei Krasnov
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Classifier: Development Status :: 3 - Alpha
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: <3.12,>=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+Requires-Dist: Flask>=3.0.0
+Requires-Dist: gunicorn>=21.2.0
+Requires-Dist: numpy>=1.26.3
+Requires-Dist: pandas>=2.2.0
+Requires-Dist: pillow>=10.2.0
+Requires-Dist: requests>=2.31.0
+Requires-Dist: scikit-learn>=1.3.2
+Requires-Dist: torch>=2.2.0
+Requires-Dist: torchmetrics>=1.2.1
+Requires-Dist: torchvision>=0.17.0
+
+# Chemical Image Classifier (ChemIC) v1.1
+[![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-blue.svg)](https://GitHub.com/ontochem/ChemIC/graphs/commit-activity)
+[![GitHub issues](https://img.shields.io/github/issues/ontochem/ChemIC.svg)](https://github.com/ontochem/ChemIC/issues)
+[![GitHub contributors](https://img.shields.io/github/contributors/ontochem/ChemIC.svg)](https://github.com/ontochem/ChemIC/graphs/contributors)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10546827.svg)](https://doi.org/10.5281/zenodo.10546827)
+
+## Table of Contents
+- [Project Description](#project-description)
+- [Requirements](#requirements)
+- [Prepare Workspace Environment](#prepare-workspace-environment)
+- [Model construction](#model-construction)
+- [Web Service for Chemical Image Classification](#web-service-for-chemical-image-classification)
+- [Classify Image](#classify-image)
+- [Jupyter Notebook](#jupyter-notebook)
+- [Models](#models)
+- [Author](#author)
+- [License](#license)
+
+## Project Description
+The Chemical Image Classifier (ChemIC) program consists of three main components:
+
+### A) Implementation of Image Classification with Convolutional Neural Network (CNN) (`chemic_train_eval.py`):
+- Responsible for training a deep learning model to classify images into four predefined classes.
+- Uses a pre-trained ResNet-50 model and includes data preparation, model training, evaluation, and testing steps.
+
+### B) Web Service for Chemical Image Classification (`chemic/app.py`):
+- Provides a Flask web application for classifying chemical images using the trained ResNet-50 model.
+- Exposes an endpoint /classification for accepting chemical images and returning the predicted class.
+
+### C) Image Classification Client (`client.py`):
+- facilitates the interaction between the client and the ChemIC web-server. The client sends to server the path to an image file or directory, and the server processes the images,
+  providing the client with the recognition results.
+
+## Requirements
+* Flask>=3.0.0
+* gunicorn>=21.2.0
+* numpy>=1.26.3
+* pandas>=2.2.0
+* pillow>=10.2.0
+* requests>=2.31.0
+* scikit-learn>=1.3.2
+* torch>=2.2.0
+* torchmetrics>=1.2.1
+* torchvision>=0.17.0
+
+## Prepare Workspace Environment with Conda
+```bash
+conda create --name chemic "python<3.12"
+conda activate chemic
+cd ChemIC
+pip install -r requirements.txt
+# TODO how to install ChemIC
+```
+
+## Model construction
+Download the archive `dataset_for_image_classifier.zip` as a part of Supplementary materials from [Zenodo](https://zenodo.org/records/10546827).
+To perform model training, validation, and test steps as well as save your own trained model run:
+```bash
+python chemic_train_eval.py
+```
+Note, that the program should be run in the directory where the folder `dataset_for_image_classifier` is located.
+
+## Models
+The directory `models` contains the best-trained model `chemical_image_classifier_resnet50.pth` for chemical image classification.
+
+## Web Service for Chemical Image Classification
+To start the Flask web server in a production mode run:
+```bash
+gunicorn -w 1 -b 127.0.0.1:5000 --timeout 3600 chemic.app:app
+```
+- -w 1: Specifies the number of worker processes. In this case, only one worker is used.
+  Adjust this value based on your server's capabilities.
+- -b 127.0.0.1:5000: Binds the application to the specified address and port. Change
+  the address and port as needed.
+- --timeout 3600: Sets the maximum allowed request processing time in seconds.
+  Adjust this value based on your application's needs.
+
+## Classify Image
+```bash
+ python client.py --image_path /path/to/images --export_dir /path/to/export
+```
+
+- **--image_path** is the path to the image file or directory for classification.
+- **--export_dir** is the export directory for the results.
+
+## Jupyter Notebook
+The `client_image_classifier.ipynb` Jupyter notebook in folder `notebooks` provides an easy-to-use interface for classifying images.
+Follow the outlined steps to perform image classification.
+
+## Author:
+Dr. Aleksei Krasnov
+a.krasnov@digital-science.com
+OntoChem GmbH part of Digital Science
+
+## Citation: 
+- L. Weber, A. Krasnov, S. Barnabas, T. Böhme, S. Boyer, Comparing Optical Chemical Structure Recognition Tools, ChemRxiv. (2023). https://doi.org/10.26434/chemrxiv-2023-d6kmg
+
+## License:
+This project is licensed under the MIT - see the LICENSE.md file for details.

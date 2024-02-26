@@ -1,0 +1,11 @@
+*.pth
+*.ckpt
+*.xlsx
+*.docx
+*.pdf
+*.csv
+*.zip
+*model.zip
+__pycache__/
+/.pytest_cache/
+dataset_for_image_classifier.zip

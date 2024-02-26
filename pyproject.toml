@@ -1,0 +1,46 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ChemIC"
+authors = [
+    {name = "Dr.Aleksei Krasnov", email = "a.krasnov@digital-science.com"},
+]
+description = "Chemical images classification project. Defines the script to train the model and web service for classification"
+readme = "README.md"
+requires-python = ">=3.10,<3.12"
+version = "1.2"
+
+license = {file = "LICENSE.md"}
+
+dependencies = [
+    "Flask>=3.0.0",
+    "gunicorn>=21.2.0",
+    "numpy>=1.26.3",
+    "pandas>=2.2.0",
+    "pillow>=10.2.0",
+    "requests>=2.31.0",
+    "scikit-learn>=1.3.2",
+    "torch>=2.2.0",
+    "torchmetrics>=1.2.1",
+    "torchvision>=0.17.0",
+            ]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    # Indicate who your project is intended for
+    "Topic :: Software Development :: Build Tools",
+    # Pick your license as you wish (see also "license" above)
+    "License :: OSI Approved :: MIT License",
+    # Specify the Python versions you support here.
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+# Python modules and packages that are included in the
+# distribution package (and therefore become importable)
+[tool.setuptools.packages.find]
+exclude = ["tests", "tests.*", "models", "Benchmark"]
