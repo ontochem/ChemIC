@@ -20,15 +20,17 @@ Author:
     a.krasnov@digital-science.com
     February 26, 2024
 """
+import os
 from pathlib import Path
+
 from PIL import Image
 from torch.utils.data import Dataset
-import os
-
 
 # Get the absolute path of the current file's directory
 CURRENT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
 print('CURRENT_DIR', CURRENT_DIR)
+
+
 class MixedImagesDataset(Dataset):
     def __init__(self, path_or_dir: str, transform=None):
         """

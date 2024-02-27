@@ -16,7 +16,7 @@ version = "1.2"
 license = {file = "LICENSE.md"}
 
 dependencies = [
-    "Flask>=3.0.0",
+    "flask>=3.0.0",
     "gunicorn>=21.2.0",
     "numpy>=1.26.3",
     "pandas>=2.2.0",

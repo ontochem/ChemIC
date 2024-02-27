@@ -24,12 +24,11 @@ Author:
 """
 
 import argparse
-from pathlib import Path
-import requests
-import pandas as pd
 import time
-import datetime
+from pathlib import Path
 
+import pandas as pd
+import requests
 
 start = time.time()
 

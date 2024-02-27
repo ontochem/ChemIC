@@ -43,8 +43,8 @@ Author:
     Date: February 26, 2024
 """
 
+from chemic.image_classifier import ImageClassifier
 from flask import Flask, request, jsonify
-from .image_classifier import ImageClassifier
 
 app = Flask(__name__)
 

@@ -75,11 +75,11 @@ python chemic_train_eval.py
 Note, that the program should be run in the directory where the folder `dataset_for_image_classifier` is located.
 
 ## Models
-Download pretrained models from Zenodo [models.zip](https://doi.org/10.5281/zenodo.10709886) and unzip it content to the directory `models`.
+Download pretrained models from Zenodo as archive [models.zip](https://doi.org/10.5281/zenodo.10709886) and unzip its content to the directory `models`.
 The directory `models` should contain the pretrained model `chemical_image_classifier_resnet50.pth` for chemical image classification.
 
 ## Web Service for Chemical Image Classification
-To start the Flask web server in a production mode run:
+To start the Flask web server in production mode run in command line:
 ```bash
 gunicorn -w 1 -b 127.0.0.1:5000 --timeout 3600 chemic.app:app
 ```

@@ -26,13 +26,13 @@ import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Tuple, List, NamedTuple, Union
-from flask import jsonify, Response
+
 import torch
+from chemic.config import Config
+from chemic.loading_images import MixedImagesDataset
+from flask import jsonify, Response
 from torch.utils.data import DataLoader
 from torchvision.transforms import v2
-from .config import Config
-from .loading_images import MixedImagesDataset
-
 
 # Define the transformation for the images
 transform = v2.Compose([
@@ -66,6 +66,7 @@ class ImageClassifier:
     """
     A class encapsulating image classification functionality.
     """
+
     def __init__(self) -> None:
         """Initializes the ImageRecognizer instance with queues.
         """
@@ -89,7 +90,7 @@ class ImageClassifier:
             result_entry = {
                 'image_id': image_path,
                 'predicted_label': 'Error! File is not an image',
-                            }
+            }
             self.results.append(result_entry)
             return self.results
         else:

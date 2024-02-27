@@ -12,9 +12,10 @@ Author:
     Date: February 26, 2024
 """
 
+from pathlib import Path
+
 import torch
 from torchvision import models
-from pathlib import Path
 
 
 class Config:

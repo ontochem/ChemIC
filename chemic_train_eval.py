@@ -10,20 +10,21 @@ Author:
     Date: September 18, 2023
 """
 
-import torch
-from torchvision.datasets import ImageFolder
-from torchvision.transforms import v2
-from torch.optim.lr_scheduler import ReduceLROnPlateau
-import torch.nn as nn
-import torch.optim as optim
-from torchvision import models
-from torch.utils.data import DataLoader
+import os
+import pathlib
 import time
 from datetime import timedelta
-import torchmetrics
+
 import pandas as pd
-import pathlib
-import os
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torchmetrics
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader
+from torchvision import models
+from torchvision.datasets import ImageFolder
+from torchvision.transforms import v2
 
 
 def main():
@@ -222,6 +223,7 @@ def main():
     end = time.time()
     with open(log_file_path, 'a') as log_file:
         print(f'Whole process took {str(timedelta(seconds=(end-start)))} sec ', file=log_file)
+
 
 if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
