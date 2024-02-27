@@ -13,7 +13,7 @@ Author:
 import os
 import pathlib
 import time
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import pandas as pd
 import torch
@@ -35,6 +35,9 @@ def main():
     batch_size = 32
     num_classes = 4
     model_name = "resnet50"  # define the models name
+    # Move model and data to GPU if available
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(f'Device: {device}')
 
     # Data Transformation
     transform = v2.Compose([
@@ -103,7 +106,7 @@ def main():
 
     # Training loop
     # Create and open a text file to save the training information
-    log_file_path = f'{models_dir}/chemical_image_classifier_{model_name}_augmentation.txt'
+    log_file_path = f'{models_dir}/chemical_image_classifier_{model_name}_augmentation_{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.txt'
     with open(log_file_path, 'w') as log_file:
         for epoch in range(num_epochs + 1):
             model.train()
@@ -158,72 +161,72 @@ def main():
     # Save the best models at the latest epoch
     if best_model:
         print("Save best models...")
-        torch.save(best_model, f'{models_dir}/chemical_image_classifier_{model_name}_{epoch}epochs_augmentation_pretrained.pth')
+        best_model_name = f'{models_dir}/chemical_image_classifier_{model_name}_{epoch}epochs_hand_drawn_like_{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.pth'
+        torch.save(best_model, best_model_name)
 
-    # Load the best models for testing
-    model.load_state_dict(torch.load(f'{models_dir}/chemical_image_classifier_{model_name}_{epoch}epochs_augmentation_pretrained.pth'))
-    model.eval()
-    correct_test = 0
-    total_test = 0
-    # Create lists to store true labels and predicted labels
-    predicted_labels = []
-    true_labels = []
-    with torch.no_grad():
-        for inputs, labels in test_loader:
-            inputs, labels = inputs.to(device), labels.to(device)
-            outputs = model(inputs)
-            _, predicted = torch.max(outputs.data, 1)
-            total_test += labels.size(0)
-            correct_test += (predicted == labels).sum().item()
+        # Load the best models for testing
+        # model.load_state_dict(torch.load(best_model_name))
+        best_model.eval()
+        correct_test = 0
+        total_test = 0
+        # Create lists to store true labels and predicted labels
+        predicted_labels = []
+        true_labels = []
+        with torch.no_grad():
+            for inputs, labels in test_loader:
+                inputs, labels = inputs.to(device), labels.to(device)
+                outputs = model(inputs)
+                _, predicted = torch.max(outputs.data, 1)
+                total_test += labels.size(0)
+                correct_test += (predicted == labels).sum().item()
 
-            # Collect predicted and true labels for later calculation of metrics
-            predicted_labels.extend(predicted.cpu().numpy())
-            true_labels.extend(labels.cpu().numpy())
+                # Collect predicted and true labels for later calculation of metrics
+                predicted_labels.extend(predicted.cpu().numpy())
+                true_labels.extend(labels.cpu().numpy())
 
-    test_accuracy = correct_test / total_test
-    with open(log_file_path, 'a') as log_file:
-        print(f"Test Accuracy: {test_accuracy:.4f}")
-        print(f"Test Accuracy: {test_accuracy:.4f}", file=log_file)
+        test_accuracy = correct_test / total_test
+        with open(log_file_path, 'a') as log_file:
+            print(f"Test Accuracy: {test_accuracy:.4f}")
+            print(f"Test Accuracy: {test_accuracy:.4f}", file=log_file)
 
-        # Convert the predicted and true labels to PyTorch tensors
-        predicted_labels_tensor = torch.tensor(predicted_labels)
-        true_labels_tensor = torch.tensor(true_labels)
+            # Convert the predicted and true labels to PyTorch tensors
+            predicted_labels_tensor = torch.tensor(predicted_labels)
+            true_labels_tensor = torch.tensor(true_labels)
 
-        # Compute precision, recall, and F1-score using PyTorch functions
-        accuracy = torchmetrics.functional.accuracy(predicted_labels_tensor, true_labels_tensor, num_classes=4, average='weighted',  task='multiclass')
-        precision = torchmetrics.functional.precision(predicted_labels_tensor, true_labels_tensor, num_classes=4, average='weighted', task='multiclass')
-        recall = torchmetrics.functional.recall(predicted_labels_tensor, true_labels_tensor, num_classes=4, average='weighted', task='multiclass')
-        f1 = torchmetrics.functional.f1_score(predicted_labels_tensor, true_labels_tensor, num_classes=4, average='weighted', task='multiclass')
+            # Compute precision, recall, and F1-score using PyTorch functions
+            accuracy = torchmetrics.functional.accuracy(predicted_labels_tensor, true_labels_tensor, num_classes=4, average='weighted',  task='multiclass')
+            precision = torchmetrics.functional.precision(predicted_labels_tensor, true_labels_tensor, num_classes=4, average='weighted', task='multiclass')
+            recall = torchmetrics.functional.recall(predicted_labels_tensor, true_labels_tensor, num_classes=4, average='weighted', task='multiclass')
+            f1 = torchmetrics.functional.f1_score(predicted_labels_tensor, true_labels_tensor, num_classes=4, average='weighted', task='multiclass')
 
-        print(f"Accuracy: {accuracy:.4f}", file=log_file)
-        print(f"Precision: {precision:.4f}", file=log_file)
-        print(f"Recall: {recall:.4f}", file=log_file)
-        print(f"F1-score: {f1:.4f}", file=log_file)
+            print(f"Accuracy: {accuracy:.4f}", file=log_file)
+            print(f"Precision: {precision:.4f}", file=log_file)
+            print(f"Recall: {recall:.4f}", file=log_file)
+            print(f"F1-score: {f1:.4f}", file=log_file)
 
 
-    class_names = train_dataset.classes
-    # Extend the image_ids list with the image IDs from the current batch
-    image_ids = [pathlib.Path(image_info[0]).name for image_info in test_loader.dataset.imgs]
-    # Convert the true prediction to class names
-    true_names = [class_names[image_info[1]] for image_info in test_loader.dataset.imgs]
-    predicted_names = [class_names[label] for label in predicted_labels]
+        class_names = train_dataset.classes
+        # Extend the image_ids list with the image IDs from the current batch
+        image_ids = [pathlib.Path(image_info[0]).name for image_info in test_loader.dataset.imgs]
+        # Convert the true prediction to class names
+        true_names = [class_names[image_info[1]] for image_info in test_loader.dataset.imgs]
+        predicted_names = [class_names[label] for label in predicted_labels]
 
-    # Create a DataFrame to store the results
-    df = pd.DataFrame({
-        "image_id": image_ids,
-        "true": true_names,
-        "prediction": predicted_names
-    })
-    df.sort_values(by='image_id', inplace=True)
-    result_dir = f"results/{dataset_name}"
-    pathlib.Path(result_dir).mkdir(parents=True, exist_ok=True)
-    DF_NAME = f"{result_dir}/predictions_{model_name}_{best_epoch}epochs_augmentation.csv"
-    # Export the DataFrame to a CSV file
-    df.to_csv(DF_NAME, index=False)
-    end = time.time()
-    with open(log_file_path, 'a') as log_file:
-        print(f'Whole process took {str(timedelta(seconds=(end-start)))} sec ', file=log_file)
-
+        # Create a DataFrame to store the results
+        df = pd.DataFrame({
+            "image_id": image_ids,
+            "true": true_names,
+            "prediction": predicted_names
+        })
+        df.sort_values(by='image_id', inplace=True)
+        result_dir = f"results/{dataset_name}"
+        pathlib.Path(result_dir).mkdir(parents=True, exist_ok=True)
+        DF_NAME = f"{result_dir}/predictions_{model_name}_{best_epoch}epochs_augmentation.csv"
+        # Export the DataFrame to a CSV file
+        df.to_csv(DF_NAME, index=False)
+        end = time.time()
+        with open(log_file_path, 'a') as log_file:
+            print(f'Whole process took {str(timedelta(seconds=(end-start)))} sec ', file=log_file)
 
 if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

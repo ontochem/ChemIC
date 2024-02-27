@@ -24,6 +24,7 @@ Author:
 """
 
 import argparse
+import datetime
 import time
 from pathlib import Path
 
@@ -49,6 +50,7 @@ class ChemClassifierClient:
             Sends a GET request to the server to check its health status.
             Returns the health status as a string.
     """
+
     def __init__(self, server_url):
         """
         Initializes a ChemRecognitionClient instance.
@@ -104,7 +106,7 @@ class ChemClassifierClient:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Client for  Chemical Images Classifier and Recognizer")
     parser.add_argument("--image_path", type=str, required=True, help="Directory containing the image files.")
-    parser.add_argument("--export_dir", type=str,  default=".", help="Export directory for the results.")
+    parser.add_argument("--export_dir", type=str, default=".", help="Export directory for the results.")
     args = parser.parse_args()
 
     # URL for the combined image processing endpoint
@@ -129,6 +131,6 @@ if __name__ == '__main__':
         df = pd.DataFrame(recognition_results)
         df.sort_values(by='image_id', inplace=True, ignore_index=True)
         print(df)
-        # df.to_csv(f'{args.export_dir}/{file_path.name}_{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.csv', index=False)
+        df.to_csv(f'{args.export_dir}/{file_path.name}_{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.csv', index=False)
         end = time.time()
-        print(f"Work took {time.strftime('%H:%M:%S', time.gmtime(end-start))}")
+        print(f"Work took {time.strftime('%H:%M:%S', time.gmtime(end - start))}")
