@@ -36,7 +36,7 @@ The package consists of three main components:
 - Exposes an endpoint /classification for accepting chemical images and returning the predicted class.
 
 ### C) Image Classification Client (`client.py`):
-- facilitates the interaction between the client and the ChemIC web-server. The client sends to server the path to an image file or directory, and the server processes the images,
+- Interact with the ChemIC web-server. The client sends to server the path to an image file or directory with images, and the server classifies the images,
   providing the client with the recognition results.
 
 ## Requirements
@@ -107,7 +107,7 @@ a.krasnov@digital-science.com
 OntoChem GmbH part of Digital Science
 
 ## Citation: 
-- L. Weber, A. Krasnov, S. Barnabas, T. Böhme, S. Boyer, Comparing Optical Chemical Structure Recognition Tools, ChemRxiv. (2023). https://doi.org/10.26434/chemrxiv-2023-d6kmg
+- L. Weber, A. Krasnov, S. Barnabas, T. Böhme, S. Boyer, Comparing Optical Chemical Structure Recognition Tools, ChemRxiv. (2023). https://doi.org/10.26434/chemrxiv-2023-d6kmg-v2
 
 ## License:
 This project is licensed under the MIT - see the LICENSE.md file for details.

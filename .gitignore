@@ -5,7 +5,7 @@
 *.pdf
 *.csv
 *.zip
-*model.zip
+*models.zip
 __pycache__/
 /.pytest_cache/
 dataset_for_image_classifier.zip
