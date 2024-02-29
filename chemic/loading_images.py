@@ -35,6 +35,7 @@ class MixedImagesDataset(Dataset):
         - transform (callable, optional): A function/transform to apply to each image.
         """
         self.path_or_dir = Path(path_or_dir)
+        # TODO: try to find more efficient way to use both relative and absolute paths
         if not self.path_or_dir.is_absolute():
             print(f'{self.path_or_dir} is not absolute')
 
