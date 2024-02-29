@@ -1,6 +1,6 @@
 LICENSE.md
 README.md
-pyproject.toml
+setup.py
 ChemIC.egg-info/PKG-INFO
 ChemIC.egg-info/SOURCES.txt
 ChemIC.egg-info/dependency_links.txt
@@ -8,6 +8,13 @@ ChemIC.egg-info/requires.txt
 ChemIC.egg-info/top_level.txt
 chemic/__init__.py
 chemic/app.py
+chemic/client.py
 chemic/config.py
 chemic/image_classifier.py
 chemic/loading_images.py
+chemic.egg-info/PKG-INFO
+chemic.egg-info/SOURCES.txt
+chemic.egg-info/dependency_links.txt
+chemic.egg-info/requires.txt
+chemic.egg-info/top_level.txt
+notebooks/client.py

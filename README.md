@@ -78,8 +78,10 @@ Note, that the program should be run in the directory where the folder `dataset_
 Download pretrained models from Zenodo as archive [models.zip](https://doi.org/10.5281/zenodo.10709886) and unzip its content to the directory `models`.
 The directory `models` should contain the pretrained model `chemical_image_classifier_resnet50.pth` for chemical image classification.
 
-## Web Service for Chemical Image Classification
-To start the Flask web server in production mode run in command line:
+## Usage Web Service for Chemical Image Classification
+
+### 1. Start the Flask web server in production mode
+Run in command line from the directory ChemIC:
 ```bash
 gunicorn -w 1 -b 127.0.0.1:5000 --timeout 3600 chemic.app:app
 ```
@@ -90,13 +92,39 @@ gunicorn -w 1 -b 127.0.0.1:5000 --timeout 3600 chemic.app:app
 - --timeout 3600: Sets the maximum allowed request processing time in seconds.
   Adjust this value based on your application's needs.
 
-## Classify Image
+## 2. Classify Image with client.py module
 ```bash
- python client.py --image_path /path/to/images --export_dir /path/to/export
+ python chemic/client.py --image_path /path/to/images --export_dir /path/to/export
 ```
-- **--image_path** is the path to the image file or directory for classification.
+- **--image_path** is the path to the image file or directory with images for classification.
 - **--export_dir** is the export directory for the results.
 
+## 3. Or use client for classification in your code
+```python
+from chemic.client import ChemClassifierClient
+
+client = ChemClassifierClient(server_url='http://127.0.0.1:5000')
+# Check the health of the server
+health_status = client.healthcheck().get('status')
+print(f"Health Status: {health_status}")
+
+# Replace with the actual path to your image file
+image_path = '<path to the image file or directory with images for classification?'
+recognition_results = client.classify_image(image_path)
+
+# Recognition results will be returned in the form of  a list of dictionaries
+print(recognition_results)
+[{'image_id': 'image_name_1.png',
+  'predicted_label': 'single chemical structure',
+  'program': 'ChemIC',
+  'program_version': '1.2'},
+ {'image_id': 'image_name_2.png',
+  'predicted_label': 'multiple chemical structures',
+  'program': 'ChemIC',
+  'program_version': '1.2'},
+  ...
+]
+```
 ## Jupyter Notebook
 The `client_image_classifier.ipynb` Jupyter notebook in folder `notebooks` provides an easy-to-use interface for classifying images.
 Follow the outlined steps to perform image classification.

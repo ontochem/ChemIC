@@ -38,7 +38,9 @@ from torchvision.transforms import v2
 transform = v2.Compose([
     v2.Resize((224, 224)),
     v2.Grayscale(num_output_channels=3),  # Convert to RGB if grayscale
-    v2.ToTensor(),
+    # v2.ToTensor(), # will be removed in a future release. Instead we are using next 2 lines:
+    v2.ToImage(),  # Convert to PIL Image
+    v2.ToDtype(torch.float32, scale=True),  # Convert to float32 and scale to [0, 1]
     v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 

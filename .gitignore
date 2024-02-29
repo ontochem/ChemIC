@@ -7,5 +7,7 @@
 *.zip
 *models.zip
 __pycache__/
+/build/
 /.pytest_cache/
 dataset_for_image_classifier.zip
+back_pyproject.toml

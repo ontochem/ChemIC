@@ -25,6 +25,7 @@ class Config:
     # Adjust the path to point to the 'models' directory relative to the current file's directory
     MODELS_DIR = CURRENT_DIR.parent / 'models'
 
+    # IMAGE_CLASSIFIER_MODEL_PATH = MODELS_DIR / "chemical_image_classifier_resnet50.pth"
     IMAGE_CLASSIFIER_MODEL_PATH = MODELS_DIR / "chemical_image_classifier_resnet50.pth"
     PROCESSING_UNIT = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

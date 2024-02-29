@@ -20,19 +20,13 @@ Author:
     a.krasnov@digital-science.com
     February 26, 2024
 """
-import os
 from pathlib import Path
 
 from PIL import Image
 from torch.utils.data import Dataset
 
-# Get the absolute path of the current file's directory
-CURRENT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
-print('CURRENT_DIR', CURRENT_DIR)
-
-
 class MixedImagesDataset(Dataset):
-    def __init__(self, path_or_dir: str, transform=None):
+    def __init__(self, path_or_dir, transform=None):
         """
         A PyTorch Dataset for loading a collection of images from a directory or a single image.
 
@@ -40,10 +34,12 @@ class MixedImagesDataset(Dataset):
         - path_or_dir (str or Path): Path to a directory containing images or a path to a single image.
         - transform (callable, optional): A function/transform to apply to each image.
         """
-        # Make adjustment to implement using both absolute and relative paths
-        # TODO implement reading image from current dir. E.g. cat_3.jpg in 'notebooks' doesn't work
-        self.path_or_dir = Path(os.path.join(CURRENT_DIR, path_or_dir.strip('../'))).resolve()
-        print('self.path_or_dir', self.path_or_dir)
+        self.path_or_dir = Path(path_or_dir)
+        if not self.path_or_dir.is_absolute():
+            print(f'{self.path_or_dir} is not absolute')
+
+            self.path_or_dir = Path(str(self.path_or_dir).strip('../')).absolute()
+
         self.transform = transform
         self.image_paths = self.get_image_paths()
 
@@ -70,8 +66,7 @@ class MixedImagesDataset(Dataset):
         """
         return len(self.image_paths)
 
-    @staticmethod
-    def is_image(path):
+    def is_image(self, path):
         """
         Check if a file is a valid image file.
 
@@ -82,10 +77,11 @@ class MixedImagesDataset(Dataset):
         - bool: True if the file is a valid image, False otherwise.
         """
         try:
+            print(f'opening {path}')
             with Image.open(path) as img:
                 img.verify()
             return True
-        except Exception:
+        except Exception as e:
             return False
 
     def __getitem__(self, idx):

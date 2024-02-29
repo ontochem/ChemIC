@@ -42,7 +42,8 @@ def main():
     # Data Transformation
     transform = v2.Compose([
                 v2.Resize((224, 224)),
-                v2.ToTensor(),
+                v2.ToImage(),  # Convert to PIL Image
+                v2.ToDtype(torch.float32, scale=True),  # Convert to float32 and scale to [0, 1]
                 v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
@@ -52,7 +53,8 @@ def main():
         v2.RandomHorizontalFlip(),  # Randomly flip images horizontally
         v2.RandomRotation(10),  # Randomly rotate images by up to 10 degrees
         v2.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),  # Adjust brightness, contrast, saturation, and hue
-        v2.ToTensor(),
+        v2.ToImage(),  # Convert to PIL Image
+        v2.ToDtype(torch.float32, scale=True),  # Convert to float32 and scale to [0, 1]
         v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 

@@ -105,7 +105,7 @@ class ChemClassifierClient:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Client for  Chemical Images Classifier and Recognizer")
-    parser.add_argument("--image_path", type=str, required=True, help="Directory containing the image files.")
+    parser.add_argument("--image_path", type=str, required=True, help="Path to the images file of directory containing the image files.")
     parser.add_argument("--export_dir", type=str, default=".", help="Export directory for the results.")
     args = parser.parse_args()
 
