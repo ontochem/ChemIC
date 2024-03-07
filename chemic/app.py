@@ -43,8 +43,9 @@ Author:
     Date: February 26, 2024
 """
 
+from flask import Flask, jsonify, request
+
 from chemic.image_classifier import ImageClassifier
-from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
@@ -54,14 +55,21 @@ print(f'Web service {__name__} is ready to work...')
 @app.route('/classify_image', methods=['POST'])
 def classify_image():
     try:
-        # Get the image path from the request
-        image_path = request.form['image_path']
-        image_recognizer = ImageClassifier()
-        image_recognizer.results = []  # Assign an attribute as empty list for each new classification cycle
-        print(f'Server received image {image_path}')
-        # Classification step
-        image_recognizer.send_to_classifier(image_path)
-        results = image_recognizer.results
+        image_classifier = ImageClassifier()
+        image_classifier.results = []  # Assign an attribute as an empty list for each new classification cycle
+
+        if image_path := request.form.get('image_path'):
+            print(f'Server received image {image_path}')
+            # Classification step
+            image_classifier.send_to_classifier(image_path=image_path)
+        elif image_data := request.form.get('image_data'):
+            print('Server received image data')
+            # Classification step
+            image_classifier.process_image_data(base64_data=image_data)
+        else:
+            return jsonify({'error': 'Neither image_path nor image_data provided.'}), 400
+
+        results = image_classifier.results
         return jsonify(results), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400

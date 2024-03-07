@@ -11,8 +11,7 @@
 - [Prepare Workspace Environment with Conda](#prepare-workspace-environment-with-conda)
 - [Model construction](#model-construction)
 - [Models](#models)
-- [Web Service for Chemical Image Classification](#web-service-for-chemical-image-classification)
-- [Classify Image](#classify-image)
+- [Usage Web Service for Chemical Image Classification](#usage-web-service-for-chemical-image-classification)
 - [Jupyter Notebook](#jupyter-notebook)
 - [Author](#author)
 - [License](#license)
@@ -33,11 +32,15 @@ The package consists of three main components:
 
 ### B) Web Service for Chemical Image Classification (`chemic/app.py`):
 - Provides a Flask web application for classifying chemical images using the trained ResNet-50 model.
-- Exposes an endpoint /classification for accepting chemical images and returning the predicted class.
+- Exposes an endpoint /classify_image for accepting chemical images and returning the predicted class.
 
 ### C) Image Classification Client (`client.py`):
-- Interact with the ChemIC web-server. The client sends to server the path to an image file or directory with images, and the server classifies the images,
-  providing the client with the recognition results.
+- Interact with the ChemIC web-server. The client can send to server:
+  - the path to a individual image file
+  - the path to directory with several images
+  - base64 encoded image data object,
+
+  and the server classifies the images, providing the client with the recognition results.
 
 ## Requirements
 * Flask>=3.0.0
@@ -96,7 +99,12 @@ gunicorn -w 1 -b 127.0.0.1:5000 --timeout 3600 chemic.app:app
 ```bash
  python chemic/client.py --image_path /path/to/images --export_dir /path/to/export
 ```
+OR 
+```bash
+ python chemic/client.py  --image_data <base64_encoded_string> --export_dir /path/to/export
+```
 - **--image_path** is the path to the image file or directory with images for classification.
+- **--image_data** is the base64 encoded image data.
 - **--export_dir** is the export directory for the results.
 
 ## 3. Or use client for classification in your code
@@ -108,9 +116,13 @@ client = ChemClassifierClient(server_url='http://127.0.0.1:5000')
 health_status = client.healthcheck().get('status')
 print(f"Health Status: {health_status}")
 
-# Replace with the actual path to your image file
-image_path = '<path to the image file or directory with images for classification?'
+# Use image path or directory. Replace with the actual path to your image file
+image_path = '<path to the image file or directory with images for classification>'
 recognition_results = client.classify_image(image_path)
+
+# OR use base64-encoded image data. Replace with your base64-encoded image data:
+base64_data = b'iVBORw0KGgoAAAANSUhEUgA....'
+recognition_results = client.classify_image(image_data=base64_data)
 
 # Recognition results will be returned in the form of  a list of dictionaries
 print(recognition_results)

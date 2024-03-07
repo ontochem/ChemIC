@@ -13,7 +13,16 @@ Dependencies:
     - loading_images (assuming MixedImagesDataset class is defined in the 'loading_images' module)
 
 Usage:
-    Instantiate the ImageClassifier class and utilize the 'send_to_classifier' method to start classification process.
+    1. Instantiate the ImageClassifier class.
+        classifier = ImageClassifier()
+
+    2. Using image path or directory:
+        results = classifier.send_to_classifier(image_path_or_dir)
+
+    3. Using base64-encoded image data:
+
+        base64_data = <class 'bytes'>  # Replace with your base64-encoded image data
+        results = classifier.process_image_data(base64_data)
 
 Author:
     Dr. Aleksei Krasnov
@@ -21,18 +30,22 @@ Author:
     Date: February 26, 2024
 """
 
+import base64
 import importlib.metadata
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from io import BytesIO
 from pathlib import Path
 from typing import Tuple, List, NamedTuple, Union
 
 import torch
-from chemic.config import Config
-from chemic.loading_images import MixedImagesDataset
+from PIL import Image
 from flask import jsonify, Response
 from torch.utils.data import DataLoader
 from torchvision.transforms import v2
+
+from chemic.config import Config
+from chemic.loading_images import MixedImagesDataset
 
 # Define the transformation for the images
 transform = v2.Compose([
@@ -68,20 +81,24 @@ class ImageClassifier:
     """
     A class encapsulating image classification functionality.
     """
-
     def __init__(self) -> None:
         """Initializes the ImageRecognizer instance with queues.
         """
         self.mixed_loader = None
         self.results = []  # Store results of recognition in a list
+        self.prog_flag = 'ChemIC'
+        self.prog_version = self.get_package_version(self.prog_flag)
 
     def send_to_classifier(self, image_path: str) -> Union[Tuple[Response, int], List]:
         """
-        Enqueues images for classification based on the provided image path.
+        Enqueues images for classification based on the provided image input.
+
         Parameters:
-            - image_path (str): Path to the image file or directory.
+            - image_input (Union[str, bytes]): Path to the image file or directory, or base64-encoded image data.
+
         Returns:
-            - Tuple[Response, int]: Success message or Error response if the image path is invalid.
+            - Union[Tuple[Response, int], List]: Tuple containing success message or error response if input is invalid,
+                                                 or list of classification results.
         """
         try:
             # Create a DataLoader for the mixed images
@@ -96,32 +113,29 @@ class ImageClassifier:
             self.results.append(result_entry)
             return self.results
         else:
-            self.process_images()
-            return jsonify({"message": "Images have been classified and put to queues."}), 202
+            self.process_image_files()
+            return jsonify({"message": "Images have been classified."}), 202
 
-    def process_images(self) -> None:
+    def process_image_files(self) -> None:
         """
         Processes images in the mixed_loader using multithreading.
         The images are processed concurrently using a ThreadPoolExecutor with a maximum number of worker threads
         determined by min of the CPU count or number of images in self.mixed_loader.
         """
-        prog_flag = 'ChemIC'
-        prog_version = self.get_package_version(prog_flag)
         with ThreadPoolExecutor(max_workers=min((os.cpu_count()), len(self.mixed_loader))) as executor:
-            futures = [executor.submit(self.process_image, image_data_) for image_data_ in self.mixed_loader]
+            futures = [executor.submit(self.process_image_file, image_data_) for image_data_ in self.mixed_loader]
             for future in as_completed(futures):
                 image_path, predicted_label = future.result()
                 print(image_path, predicted_label)
                 result_entry = {
                     'image_id': Path(image_path).name,
                     'predicted_label': predicted_label,
-                    'program': prog_flag,
-                    'program_version': prog_version
+                    'program': self.prog_flag,
+                    'program_version': self.prog_version
                 }
                 self.results.append(result_entry)
 
-    @staticmethod
-    def process_image(image_data):
+    def process_image_file(self, image_data: Tuple[str, torch.Tensor]):
         """
         Processes a single image in the mixed_loader and returns the image path and predicted class label by
         using chemical images classifier.
@@ -135,12 +149,74 @@ class ImageClassifier:
         image_path, image = image_data
         image_path = image_path[0]  # Extract the image path from the batch
         try:
-            with torch.no_grad():
-                output = classifier_model(image)
-                _, predicted = torch.max(output.data, 1)
-                return image_path, chem_labels[predicted.item()]
+            predicted_label = self.inference_label(image=image)
+            return image_path, predicted_label
         except Exception as e:
             return jsonify({'error': str(e)}), 400
+
+    def process_image_data(self, base64_data):
+        """
+        Processes base64-encoded image data and adds the result to the results list.
+
+        Parameters:
+            - base64_data (str): Base64-encoded image data.
+        """
+        # Transform the image
+        transformed_image = self.transform_base64_image(base64_data, transform_type=transform)
+
+        try:
+            predicted_label = self.inference_label(image=transformed_image)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 400
+        else:
+            result_entry = {
+                'image_id': None,  # TODO: should we use hash of binary object to identify it or just skip image_id?
+                'predicted_label': predicted_label,
+                'program': self.prog_flag,
+                'program_version': self.prog_version
+            }
+            print(f'Result entry {result_entry}')
+            self.results.append(result_entry)
+            return self.results
+
+    @staticmethod
+    def transform_base64_image(base64_string, transform_type):
+        """
+        Function to decode base64 string and apply transformations for further prediction with ML model.
+
+        Parameters:
+            - base64_data (str): Base64-encoded image data.
+            - transform_type: Transformation to apply to the image.
+
+        Returns:
+            - torch.Tensor: Transformed image tensor ready for prediction.
+        """
+        # Decode the base64 encoded image data
+        decoded_data = base64.b64decode(base64_string)
+        # Create a BytesIO object from the decoded binary data
+        image_stream = BytesIO(decoded_data)
+        # Open the image using PIL.Image.open()
+        image = Image.open(image_stream)
+        # Apply transformations for images
+        transformed_image = transform_type(image).unsqueeze(0)
+        return transformed_image
+
+    @staticmethod
+    def inference_label(image):
+        """
+        Performs inference on the image and returns the predicted label.
+
+        Parameters:
+           - image: Image tensor.
+
+        Returns:
+           - str: Predicted label.
+        """
+        with torch.no_grad():
+            output = classifier_model(image)
+            _, predicted = torch.max(output.data, 1)
+            predicted_label = chem_labels[predicted.item()]
+            return predicted_label
 
     @staticmethod
     def get_package_version(package_name):

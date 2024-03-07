@@ -11,3 +11,4 @@ __pycache__/
 /.pytest_cache/
 dataset_for_image_classifier.zip
 back_pyproject.toml
+*.egg-info

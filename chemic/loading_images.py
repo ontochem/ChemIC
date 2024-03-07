@@ -25,6 +25,7 @@ from pathlib import Path
 from PIL import Image
 from torch.utils.data import Dataset
 
+
 class MixedImagesDataset(Dataset):
     def __init__(self, path_or_dir, transform=None):
         """
@@ -35,12 +36,6 @@ class MixedImagesDataset(Dataset):
         - transform (callable, optional): A function/transform to apply to each image.
         """
         self.path_or_dir = Path(path_or_dir)
-        # TODO: try to find more efficient way to use both relative and absolute paths
-        if not self.path_or_dir.is_absolute():
-            print(f'{self.path_or_dir} is not absolute')
-
-            self.path_or_dir = Path(str(self.path_or_dir).strip('../')).absolute()
-
         self.transform = transform
         self.image_paths = self.get_image_paths()
 

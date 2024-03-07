@@ -1,7 +1,7 @@
 """Chemical Images Classification Client Module:
 This module facilitates the interaction between the client and the ChemIC web-server.
-The client sends to server the path to an image file or directory, and the server processes the images,
-providing the client with the recognition results.
+The client sends to server the path to an image file/directory or base64 encoded image data object,
+and the server processes the images, providing the client with the recognition results.
 
 Dependencies:
     - argparse
@@ -12,7 +12,9 @@ Dependencies:
 
 Usage:
     Run this module with the required arguments:
-        python client.py --image_path /path/to/images --export_dir /path/to/export
+        python client.py --image_path /path/to/images
+
+        python client.py --image_data <base64_encoded_string>
 
     Optional arguments:
         --export_dir: Export directory for the recognition results in the csv format. Default is the current directory.
@@ -25,6 +27,7 @@ Author:
 
 import argparse
 import datetime
+import os
 import time
 from pathlib import Path
 
@@ -32,7 +35,6 @@ import pandas as pd
 import requests
 
 start = time.time()
-
 
 class ChemClassifierClient:
     """
@@ -42,8 +44,8 @@ class ChemClassifierClient:
         server_url (str): The URL of the ChemICR server.
 
     Methods:
-        classify(image_path: str) -> dict:
-            Sends a POST request to the server with the specified image path or directory.
+        classify_image(image_path: str = None, image_data: bytes = None) -> dict:
+            Sends a POST request to the server with either the specified image path or image data.
             Returns the classification results in dictionary format.
 
         healthcheck() -> str:
@@ -60,20 +62,32 @@ class ChemClassifierClient:
         """
         self.server_url = server_url
 
-    def classify_image(self, image_path: str):
+    def classify_image(self, image_path: str = None, image_data: bytes = None):
         """
-        Sends a POST request to the server with the specified image path or directory.
+        Sends a POST request to the server with either the specified image path or image data.
         Returns the classification results in dictionary format.
 
         Parameters:
-            image_path (str): The path to the image file or directory to be processed.
+            image_path (str): The path to the image file.
+            image_data (bytes): The binary base64 encoded data of the image.
 
         Returns:
             dict: Classification results, including image ID, predicted labels, and chemical structures.
         """
         try:
-            # Create a dictionary with the image path or directory with images
-            data = {'image_path': image_path}
+            data = {}
+            if image_path:
+                # Check if the path to the file is valid
+                file_path = Path(image_path)
+                if not file_path.exists():
+                    raise FileNotFoundError(f'Invalid path provided: {image_path}')
+                data['image_path'] = os.path.abspath(image_path)
+            elif image_data:
+                # Image data should be base64 encoded
+                data['image_data'] = image_data
+            else:
+                raise ValueError("Either --image_path or --image_data must be provided.")
+
             # Send a POST request to the server
             response = requests.post(f'{self.server_url}/classify_image', data=data)
             response.raise_for_status()  # Raise an HTTPError for bad responses
@@ -105,7 +119,8 @@ class ChemClassifierClient:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Client for  Chemical Images Classifier and Recognizer")
-    parser.add_argument("--image_path", type=str, required=True, help="Path to the images file of directory containing the image files.")
+    parser.add_argument("--image_path", type=str, help="Path to the image file or directory with images.")
+    parser.add_argument("--image_data", type=str, help="Base64 encoded image data.")
     parser.add_argument("--export_dir", type=str, default=".", help="Export directory for the results.")
     args = parser.parse_args()
 
@@ -119,18 +134,16 @@ if __name__ == '__main__':
     health_status = client.healthcheck().get('status')
     print(f"Health Status: {health_status}")
 
-    # Check if the path to the file is valid
-    file_path = Path(args.image_path)
-    if not file_path.exists():
-        raise FileNotFoundError(f'Invalid path or directory provided: {args.image_path}, try again with correct path')
-    else:
-        # Send POST request to classify and predict images
-        recognition_results = client.classify_image(args.image_path)
-        print(recognition_results)
-        # Convert results to pands Dataframe
-        df = pd.DataFrame(recognition_results)
-        df.sort_values(by='image_id', inplace=True, ignore_index=True)
-        print(df)
-        df.to_csv(f'{args.export_dir}/{file_path.name}_{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.csv', index=False)
-        end = time.time()
-        print(f"Work took {time.strftime('%H:%M:%S', time.gmtime(end - start))}")
+    # Send POST request to classify and predict images
+    recognition_results = client.classify_image(image_path=args.image_path, image_data=args.image_data)
+
+    print(recognition_results)
+
+    # Convert results to pandas DataFrame
+    df = pd.DataFrame(recognition_results)
+    df.sort_values(by='image_id', inplace=True, ignore_index=True)
+    print(df)
+    df.to_csv(f'{args.export_dir}/{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}_classification_results.csv', index=False)
+
+    end = time.time()
+    print(f"Work took {time.strftime('%H:%M:%S', time.gmtime(end - start))}")
