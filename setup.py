@@ -1,21 +1,27 @@
 from setuptools import setup, find_packages
 
+# Read the contents of README.md
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name="ChemIC",
     version="1.2",
     description="Chemical images classification project. Program for training the neural network model and web service for classification images",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author="Dr.Aleksei Krasnov",
     author_email="a.krasnov@digital-science.com",
     license="MIT",
     python_requires=">=3.10,<3.12",
     classifiers=[
-        "Development Status :: 3 - Alpha",
         "Topic :: Software Development :: Build Tools",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
     ],
+
     url="https://github.com/ontochem/ChemIC.git",
     packages=find_packages(exclude=["tests", "tests.*", "models", "Benchmark"]),
     package_dir={'chemic': 'chemic'},

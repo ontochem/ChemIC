@@ -49,7 +49,7 @@ from chemic.image_classifier import ImageClassifier
 
 app = Flask(__name__)
 
-print(f'Web service {__name__} is ready to work...')
+print(f'ChemIC web service {__name__} is ready to work...')
 
 
 @app.route('/classify_image', methods=['POST'])

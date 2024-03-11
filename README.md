@@ -59,7 +59,11 @@ The package consists of three main components:
 # Create and activate conda environment
 conda create --name chemic "python<3.12"
 conda activate chemic
-# Get and install package from Github repository
+
+# Install from PyPi
+pip install ChemIC
+
+# Or get and install package from Github repository
 pip install git+https://github.com/ontochem/ChemIC.git
 
 # Or install in the editable mode
@@ -68,7 +72,8 @@ cd ChemIC
 pip install -r requirements.txt
 pip install -e .
 ```
-
+- Where -e means "editable" mode.
+ 
 ## Model construction
 Download the archive `dataset_for_image_classifier.zip` as a part of Supplementary materials from [Zenodo](https://zenodo.org/records/10546827) .
 To perform model training, validation, and test steps as well as save your own trained model run:
@@ -146,7 +151,8 @@ Dr. Aleksei Krasnov
 a.krasnov@digital-science.com
 OntoChem GmbH part of Digital Science
 
-## Citation: 
+## Citation:
+- A. Krasnov, S. Barnabas, T. Böhme, S. Boyer, L. Weber, Comparing software tools for optical chemical structure recognition, Digital Discovery (2024).	https://doi.org/10.1039/D3DD00228D
 - L. Weber, A. Krasnov, S. Barnabas, T. Böhme, S. Boyer, Comparing Optical Chemical Structure Recognition Tools, ChemRxiv. (2023). https://doi.org/10.26434/chemrxiv-2023-d6kmg-v2
 
 ## License:

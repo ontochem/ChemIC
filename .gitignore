@@ -8,7 +8,9 @@
 *models.zip
 __pycache__/
 /build/
+/dist/
 /.pytest_cache/
 dataset_for_image_classifier.zip
 back_pyproject.toml
 *.egg-info
+/ChemIC.egg-info/
