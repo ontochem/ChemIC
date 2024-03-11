@@ -86,7 +86,7 @@ class ImageClassifier:
         """
         self.mixed_loader = None
         self.results = []  # Store results of recognition in a list
-        self.prog_flag = 'ChemIC'
+        self.prog_flag = 'ChemIC-ml'
         self.prog_version = self.get_package_version(self.prog_flag)
 
     def send_to_classifier(self, image_path: str) -> Union[Tuple[Response, int], List]:

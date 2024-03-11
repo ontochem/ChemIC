@@ -73,7 +73,7 @@ def main():
     # Define the models
     try:
         # Load your previously trained models, adjust the location
-        checkpoint_path = 'models/chemical_image_classifier_resnet50.pth'
+        checkpoint_path = 'chemic/models/chemical_image_classifier_resnet50.pth'
         checkpoint = torch.load(checkpoint_path)
 
         # Reinitialize the model with the modified architecture
