@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="ChemIC",
+    name="ChemIC-ml",
     version="1.2",
     description="Chemical images classification project. Program for training the neural network model and web service for classification images",
     long_description=long_description,

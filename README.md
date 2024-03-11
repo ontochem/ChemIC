@@ -61,7 +61,7 @@ conda create --name chemic "python<3.12"
 conda activate chemic
 
 # Install from PyPi
-pip install ChemIC
+pip install ChemIC-ml
 
 # Or get and install package from Github repository
 pip install git+https://github.com/ontochem/ChemIC.git
